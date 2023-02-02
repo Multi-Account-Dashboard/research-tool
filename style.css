@@ -1,0 +1,39 @@
+.node-selected {
+    stroke-width: 2px !important;
+}
+
+.node-collapsed {
+    fill: #ccc !important;
+}
+
+div#graph {
+    padding: 10px;
+    border: 1px solid;
+    width: auto;
+}
+
+svg {
+    height: auto;
+    min-width: 1000;
+    vertical-align: center;
+}
+
+i.delete-icon {
+    color: red;
+}
+
+i.delete-icon:hover {
+    cursor: pointer;
+}
+
+i.graph-ui-icon {
+    font-size: 1.2rem;
+    padding-left: 5px;
+    padding-right: 5px;
+    color: #00000077;
+}
+
+i.graph-ui-icon:hover {
+    cursor: pointer;
+    color: #000000FF;
+}

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AAG Analyser - Editor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css" /> </head>
+
+<body>
+    <!--Nav -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">AAG Analyser</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="editor.html">Editor</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="analysis.html">Analysis</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Content -->
+    <div class="container-fluid" style="padding-top: 10px;">
+        <div class="row">
+            <div class="col-md-4">
+                <div id="toolbox">
+                    <ul class="nav nav-tabs" id="myTab">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="tab_node" data-bs-toggle="tab" href="#node">Graph</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#devices">Devices</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#scoring">Scoring</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tab_import" data-bs-toggle="tab" href="#import">Import</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tab_view" data-bs-toggle="tab" href="#view">View</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" style="padding: 10px;">
+                        <div class="tab-pane show active" id="node" role="tabpanel">
+                            <div id="toolbox-node-not-selected">
+                                <p>Please select a node in the graph</p>
+                            </div>
+                            <div id="toolbox-node-selected" style="display: none;">
+                                <!-- Node selection -->
+                                <div id="formNode" style="display: none;">
+                                    <h3>Authentication</h3>
+                                    <div class="mb-3">
+                                        <label for="formNodeValue" class="form-label">Category:</label>
+                                        <select id="formNodeValue" class="form-select">
+                                        <option value="knowledge">Knowledge-based</option>
+                                        <option value="software">Software-based</option>
+                                        <option value="hardware">Hardware-based</option>
+                                      </select>
+
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="formNodeLabel" class="form-label">Label:</label>
+                                        <input type="text" id="formNodeLabel" class="form-control" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="formNodeId" class="form-label">Node ID:</label>
+                                        <input type="text" id="formNodeId" class="form-control" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="formNodeScore" class="form-label">Score:</label>
+                                        <input type="number" id="formNodeScore" class="form-control" />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="formNodeDeviceList" class="form-label">Devices and apps:</label>
+                                        <ul class="list-group" id="formNodeDeviceList"></ul>
+                                    </div>
+                                </div>
+
+                                <!-- Account selection -->
+                                <div id="formAccount" style="display: none;">
+                                    <h3>Account</h3>
+                                    <div class="mb-3">
+                                        <label for="formAccountName" class="form-label">Name:</label>
+                                        <input id="formAccountName" type="text" class="form-control" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="formAccountNodeId" class="form-label">Node ID:</label>
+                                        <input id="formAccountNodeId" type="text" class="form-control" />
+                                    </div>
+                                </div>
+                                <!-- Operator selection -->
+                                <div id="formOperator" style="display: none;">
+                                    <h3>Operator</h3>
+                                    <div class="mb-3">
+                                        <label for="formOperatorValue" class="form-label">Value:</label>
+                                        <select id="formOperatorValue" class="form-select">
+                                        <option>&</option>
+                                        <option>|</option>
+                                      </select>
+                                    </div>
+                                </div>
+                                <!-- Graph selection -->
+                                <div id="formGraph" style="display: none;">
+                                    <h3>Graph</h3>
+
+                                    <div class="mb-3">
+                                        <br/>
+                                        <input type="file" class="form-control" id="formGraphFileInput" accept=".json" />
+                                        <br/>
+                                        <label for="formGraphInput" class="form-label">Import graph:</label>
+                                        <textarea id="formGraphInput" class="form-control" rows="4"></textarea>
+                                        <br />
+                                        <button id="formGraphBtnImport" class="btn btn-primary">Import</button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3" id="formAddChild">
+                                    <br/>
+                                    <hr/>
+                                    <br/>
+                                    <label for="selectAddChild" class="form-label"><b>Add child</b></label>
+                                    <div class="input-group mb-3">
+                                        <select id="selectAddChild" class="form-select">
+                                    <option>Account</option>
+                                    <option>Operator</option>
+                                    <option>Authentication</option>
+                                    <option>Graph</option>
+                                  </select>
+                                        <button id="btnAddNode" class="btn btn-primary" type="button">Add</button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="scoring" role="tabpanel">
+                            <div class="mb-3">
+                                <label for="formScoringView" class="form-label">View</label>
+                                <select id="formScoringView" class="form-select">
+                                <option>Security</option>
+                                <option>Recovery</option>
+                              </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="formScoringAnd" class="form-label">Conjunction &</label>
+                                <select id="formScoringAnd" class="form-select">
+                                <option>MAX</option>
+                                <option>SUM</option>
+                              </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="formScoringOr" class="form-label">Disjunction |</label>
+                                <select id="formScoringOr" class="form-select">
+                                    <option>MIN</option>
+                              </select>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane" id="devices" role="tabpanel">
+                            <h3>Devices</h3>
+                            <div class="input-group mb-3">
+                                <input type="text" id="formDeviceName" class="form-control" placeholder="Device or app name" aria-label="device" aria-describedby="button-addon">
+                                <button class="btn btn-outline-secondary" type="button" id="formDeviceBtnAdd">Add</button>
+                            </div>
+                            <ul class="list-group" id="formDeviceList"></ul>
+                        </div>
+
+                        <div class="tab-pane" id="import" role="tabpanel">
+                            <br/>
+                            <input type="file" class="form-control" id="formImportFileInput" accept=".json" />
+                            <br/>
+                            <textarea class="form-control" id="importData" rows="10"></textarea>
+                            <div style="margin-top: 50px; float:right;">
+                                <button type="button" id="btnImport" class="btn btn-light">Import</button>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane" id="analysis" role="tabpanel">
+                            <br/>
+                            <label for="formAnalysisOriginalModelFileInput" class="form-label">Original Model</label>
+                            <input type="file" class="form-control" id="formAnalysisOriginalModelFileInput" accept=".json" />
+                            <br/>
+                            <button id="btnFormAnalysisShowOriginalModel" class="btn btn-light" style="display:none;">Show</button>
+                            <br/>
+                            <br/>
+                            <label for="formAnalysisDataFileInput" class="form-label">Graph Data</label>
+                            <input type="file" class="form-control" id="formAnalysisDataFileInput" accept=".json" />
+
+                        </div>
+
+                        <div class="tab-pane" id="view" role="tabpanel">
+                            <br/>
+                            <h3>Layout</h3><br/>
+                            <div class="mb-3">
+                                <label for="formViewNodeWidth" class="form-label">Node width:</label>
+                                <input type="range" id="formViewNodeWidth" class="form-range" min="20" max="150" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="formViewNodeHeight" class="form-label">Node height:</label>
+                                <input type="range" id="formViewNodeHeight" class="form-range" min="10" max="60" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="formViewNodeHorizontalSpace" class="form-label">Horizontal spacing:</label>
+                                <input type="range" id="formViewNodeHorizontalSpace" class="form-range" min="10" max="100" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="formViewNodeVerticalSpace" class="form-label">Vertical spacing:</label>
+                                <input type="range" id="formViewNodeVerticalSpace" class="form-range" min="10" max="100" />
+                            </div>
+                            <div class="mb-3">
+                                <button id="formViewResetButton" class="btn btn-light">Reset</button>
+                            </div>
+                            <hr/>
+
+                            <h3>Items</h3><br/>
+                            <div class="mb-3">
+                                <label for="formViewShowScores" class="form-label">Scores:</label>
+                                <select id="formViewShowScores" class="form-select">
+                                    <option value="all">Show all</option>
+                                    <option value="leaves">Show leaves only</option>
+                                    <option value="authentication">Show authentication only</option>
+                                    <option value="none">Show none</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="formViewShowDevices" class="form-label">Show devices:</label>
+                                <select id="formViewShowDevices" class="form-select">
+                                    <option value="all">Show all</option>
+                                    <option value="used">Show used devices only</option>
+                                    <option value="none">Show none</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <!---->
+                <div id="graph" style="position: relative;">
+                    <div style="position: absolute; width: auto; height: auto; top: 5px; left: 10px;" id="graphLabel"></div>
+                    <div id="graph-ui" style="position: relative;">
+                        <div id="graph-node-ui" style="display:none;">
+                            <i width="30" height="30" class="graph-ui-icon bi bi-arrow-left" onclick="moveLeft();" style="position: absolute; width: auto; height: auto; left: 5px; top: 0px; font-size: 1.5em;" title="Move left"></i>
+                            <i id="graph-ui-collapse-icon" width="30" height="30" class="graph-ui-icon bi bi-arrows-collapse" onclick="collapse();" style="position: absolute; width: auto; height: auto; left: 40px; top: 0px; font-size: 1.5em;"></i>
+                            <i width="30" height="30" class="graph-ui-icon bi bi-arrow-right" onclick="moveRight();" style="position: absolute; width: auto; height: auto; left: 75px; top: 0px; font-size: 1.5em;" title="Move right"></i>
+                            <i width="30" height="30" class="graph-ui-icon bi bi-x-circle" onclick="deleteNode();" style="position: absolute; width: auto; height: auto; left: 110px; top: 0px; font-size: 1.5em;" title="Delete node and children"></i>
+
+                        </div>
+
+                        <i width="40" height="40" class="graph-ui-icon bi bi-arrows-fullscreen" onclick="alignGraph()" style="position: absolute; width: auto; height: auto; right: 5px; top: 0px; font-size: 1.5em;" title="Zoom to graph"></i>
+                        <i width="40" height="40" class="graph-ui-icon bi bi-filetype-svg" onclick="downloadSVG()" style="position: absolute; width: auto; height: auto; right: 40px; top: 0px; font-size: 1.5em;" title="Download SVG image"></i>
+                        <i width="40" height="40" class="graph-ui-icon bi bi-filetype-json" onclick="downloadJSON()" style="position: absolute; width: auto; height: auto; right: 75px; top: 0px; font-size: 1.5em;" title="Download JSON"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+
+    <script src="js/graph.js"></script>
+    <script src="js/editor.js"></script>
+    <script src="js/graph-view.js"></script>
+
+
+
+</body>
+
+</html>

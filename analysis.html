@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AAG Analyser - Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css" /> </head>
+
+<body>
+    <!--Nav -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">AAG Analyser</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="editor.html">Editor</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="analysis.html">Analysis</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Content -->
+    <div class="container-fluid" style="padding-top: 10px;">
+        <div class="row">
+            <div class="col-md-4">
+                <div id="toolbox">
+                    <ul class="nav nav-tabs" id="myTab">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="tab_model" data-bs-toggle="tab" href="#model">Model</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" id="tab_data" data-bs-toggle="tab" href="#data">Data</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tab_scoring" data-bs-toggle="tab" href="#scoring">Scoring</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" id="tab_statistics" data-bs-toggle="tab" href="#statistics">Statistics</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tab_view" data-bs-toggle="tab" href="#view">View</a>
+                        </li>
+
+                    </ul>
+
+                    <div class="tab-content" style="padding: 10px;">
+                        <div class="tab-pane show active" id="model" role="tabpanel">
+                            <br/>
+                            <input type="file" class="form-control" id="formImportModelFileInput" accept=".json" />
+                            <div style="margin-top: 25px; float:right;">
+                                <button type="button" id="btnImportModel" class="btn btn-light">Import</button>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane" id="data" role="tabpanel">
+                            <br/>
+                            <input type="file" class="form-control" id="formImportDataFileInput" accept=".json" />
+                            <div style="margin-top: 25px;">
+                                <button type="button" id="btnImportData" class="btn btn-light">Import</button>
+                            </div>
+                            <select class="form-select" id="formDataList" style="margin-top: 25px; display: none;"></select>
+                        </div>
+
+
+                        <div class="tab-pane" id="scoring" role="tabpanel">
+                            <div class="mb-3">
+                                <label for="formScoringView" class="form-label">View</label>
+                                <select id="formScoringView" class="form-select">
+                                <option>Security</option>
+                                <option>Recovery</option>
+                              </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="formScoringAnd" class="form-label">Conjunction &</label>
+                                <select id="formScoringAnd" class="form-select">
+                                <option>MAX</option>
+                                <option>SUM</option>
+                              </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="formScoringOr" class="form-label">Disjunction |</label>
+                                <select id="formScoringOr" class="form-select">
+                                    <option>MIN</option>
+                              </select>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane" id="statistics" role="tabpanel">
+                            <br/>
+                            <div class="mb-3">
+                                <select id="formStatisticsView" class="form-select">
+                                <option selected value="frequency">Frequency of methods</option>
+                                <option value="security_scores">Security Scores</option>
+                                <option value="recovery_scores">Recovery scores</option>
+                                <option value="graph_patterns">Graph patterns</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3" id="formStatisticsSecurityScores" style="display: none;">
+                                <div class="mb-3">
+                                    <button class="btn btn-light" onclick="downloadSecurityScores()">Download security scores</button>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="formStatisticsSecurityMin" class="form-label">Min</label>
+                                        <input type="number" id="formStatisticsSecurityMin" class="form-control" min="0" value="1" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="formStatisticsSecurityMax" class="form-label">Max</label>
+                                        <input type="number" id="formStatisticsSecurityMax" class="form-control" value="3" />
+                                    </div>
+                                </div>
+                                <br />
+                                <div>
+                                    N = <span id="formStatisticsSecurityOutputNumber">0</span>
+                                </div>
+                            </div>
+                            <div class="mb-3" id="formStatisticsRecoveryScores" style="display: none;">
+                                <div class="mb-3">
+                                    <button class="btn btn-light" onclick="downloadRecoveryScores()">Download recovery scores</button>
+                                </div>
+                                <h3>Filter</h3>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="formStatisticsRecoveryMin" class="form-label">Min</label>
+                                        <input type="number" id="formStatisticsRecoveryMin" class="form-control" min="0" value="0" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="formStatisticsRecoveryMax" class="form-label">Max</label>
+                                        <input type="number" id="formStatisticsRecoveryMax" class="form-control" value="10" />
+                                    </div>
+                                </div>
+                                <br />
+                                <div>
+                                    N = <span id="formStatisticsRecoveryOutputNumber">0</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <select class="form-select" id="formStatisticsPatternList" style="display: none;"></select>
+                            </div>
+                            <div class="mb-3">
+                                <select class="form-select" id="formStatisticsDataList" style="display: none;"></select>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane" id="view" role="tabpanel">
+                            <br/>
+                            <div class="mb-3">
+                                <label for="formViewNodeWidth" class="form-label">Node width:</label>
+                                <input type="range" id="formViewNodeWidth" class="form-range" min="20" max="150" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="formViewNodeHeight" class="form-label">Node height:</label>
+                                <input type="range" id="formViewNodeHeight" class="form-range" min="10" max="60" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="formViewNodeHorizontalSpace" class="form-label">Horizontal spacing:</label>
+                                <input type="range" id="formViewNodeHorizontalSpace" class="form-range" min="10" max="100" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="formViewNodeVerticalSpace" class="form-label">Vertical spacing:</label>
+                                <input type="range" id="formViewNodeVerticalSpace" class="form-range" min="10" max="100" />
+                            </div>
+                            <div class="mb-3">
+                                <button id="formViewResetButton" class="btn btn-light">Reset</button>
+                            </div>
+                            <hr/>
+
+                            <h3>Items</h3><br/>
+                            <div class="mb-3">
+                                <label for="formViewShowScores" class="form-label">Scores:</label>
+                                <select id="formViewShowScores" class="form-select">
+                                    <option value="all">Show all</option>
+                                    <option value="leaves">Show leaves only</option>
+                                    <option value="authentication">Show authentication only</option>
+                                    <option value="none">Show none</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="formViewShowDevices" class="form-label">Show devices:</label>
+                                <select id="formViewShowDevices" class="form-select">
+                                    <option value="all">Show all</option>
+                                    <option value="used">Show used devices only</option>
+                                    <option value="none">Show none</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <!---->
+                <div id="graph" style="position: relative;">
+                    <div style="position: absolute; width: autho; height: auto; top: 5px; left: 10px;" id="graphLabel"></div>
+                    <div id="graph-ui" style="position: relative;">
+                        <i width="40" height="40" class="graph-ui-icon bi bi-arrows-fullscreen" onclick="alignGraph()" style="position: absolute; width: auto; height: auto; right: 5px; top: 0px; font-size: 1.5em;" title="Zoom to graph"></i>
+                        <i width="40" height="40" class="graph-ui-icon bi bi-filetype-svg" onclick="downloadSVG()" style="position: absolute; width: auto; height: auto; right: 40px; top: 0px; font-size: 1.5em;" title="Download SVG image"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="js/graph.js"></script>
+    <script src="js/analysis.js"></script>
+    <script src="js/graph-view.js"></script>
+</body>
+
+</html>
