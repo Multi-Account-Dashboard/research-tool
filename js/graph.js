@@ -464,6 +464,11 @@ function update(source) {
                 if ($("select#formScoringView").val() === "Security") {
                     return d.score;
                 } else if ($("select#formScoringView").val() === "Recovery") {
+                    if (d.recovery === 0) {
+                        d3.select(this).style("fill", "red");
+                    } else {
+                        d3.select(this).style("fill", null);
+                    }
                     if (d.recovery % 1 > 0) {
                         return d.recovery.toFixed(2);
                     } else {
@@ -534,21 +539,34 @@ function update(source) {
                 let devicePos = getDevicePosition(i, treeDepth);
                 let deviceGroup = devices.append("g")
                     .attr("transform", "translate(" + devicePos.x + "," + devicePos.y + ")");
-                deviceGroup.append("rect")
-                    .attr("fill", "none")
+                let deviceRect = deviceGroup.append("rect")
+                    .attr("fill", "white")
                     .attr("stroke", "black")
                     .attr("x", -50)
                     .attr("y", -15)
                     .style("rx", "15")
                     .attr("width", 100)
                     .attr("height", 30)
-                deviceGroup.append("text")
+                let deviceText = deviceGroup.append("text")
                     .style("font", " 14px sans-serif")
                     .attr("x", 0)
                     .attr("y", 0)
                     .attr("text-anchor", "middle")
                     .attr("alignment-baseline", "middle")
                     .text(deviceData[i].label);
+                if (deviceDisabledList.includes(i)) {
+                    deviceText.attr("text-decoration", "line-through");
+                }
+                if (typeof clickDevice === "function") {
+                    deviceRect.on("click", function() { clickDevice(i) })
+                        .on("mouseover", function() {
+                            d3.select(this).style("cursor", "pointer");
+                        });
+                    deviceText.on("click", function() { clickDevice(i) })
+                        .on("mouseover", function() {
+                            d3.select(this).style("cursor", "pointer");
+                        });
+                }
                 // Score
                 if (document.Graph.settings.showScore !== "none" && $("select#formScoringView").val() === "Recovery" && deviceUseList[i] > 0) {
                     deviceGroup.append("circle")
@@ -558,18 +576,26 @@ function update(source) {
                         .attr("r", 15)
                         .attr("cx", 50)
                         .attr("cy", -15);
-                    deviceGroup.append("text")
+                    let recoveryScoreNode = deviceGroup.append("text")
                         .style("font", " 12px sans-serif")
                         .attr("x", 50)
                         .attr("y", -15)
                         .attr("text-anchor", "middle")
-                        .attr("alignment-baseline", "middle")
-                        .text((1 / deviceUseList[i]) % 1 !== 0 ? (1 / deviceUseList[i]).toFixed(2) : 1 / deviceUseList[i]);
+                        .attr("alignment-baseline", "middle");
+
+                    if (deviceDisabledList.includes(i)) {
+                        recoveryScoreNode.style("fill", "red");
+                        recoveryScoreNode.text("0");
+                    } else {
+                        recoveryScoreNode.style("fill", null);
+                        recoveryScoreNode.text((1 / deviceUseList[i]) % 1 !== 0 ? (1 / deviceUseList[i]).toFixed(2) : 1 / deviceUseList[i]);
+                    }
                 }
             }
         }
     }
 }
+
 
 function getBoundingBoxFromGraph(node, boundingBox = { left: 0, top: 0, bottom: 0, right: 0 }) {
     leftBound = node.x - document.Graph.settings.nodeWidth / 2;
@@ -838,7 +864,12 @@ function calculateRecovery(node) {
         node.recovery = 0
         if (node.devices && node.devices.length > 0) {
             for (let i = 0; i < node.devices.length; i++) {
-                node.recovery += 1 / deviceUseList[getDeviceIndexById(node.devices[i])];
+                let deviceIndex = getDeviceIndexById(node.devices[i]);
+                if (deviceDisabledList.includes(deviceIndex)) {
+                    node.recovery += 0;
+                } else {
+                    node.recovery += 1 / deviceUseList[deviceIndex];
+                }
             }
         } else {
             node.recovery = 1;
@@ -891,6 +922,19 @@ function calculateDeviceUseNode(node) {
 
 
 // Devices
+
+let deviceDisabledList = [];
+
+clickDevice = function(deviceIndex) {
+    const index = deviceDisabledList.indexOf(deviceIndex);
+    if (index > -1) {
+        deviceDisabledList.splice(index, 1);
+    } else {
+        deviceDisabledList.push(deviceIndex);
+    }
+    update();
+    console.log("test", deviceDisabledList);
+}
 
 function generateRandomDeviceId() {
     return Math.random().toString(36).slice(2, 7);
