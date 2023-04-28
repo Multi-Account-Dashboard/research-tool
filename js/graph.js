@@ -421,7 +421,16 @@ function update(source) {
             return d.label;
         }).style("fill-opacity", 1);
 
-
+    nodeUpdate.selectAll(".node-label").filter(function(d) {
+        return d.type == 'authentication' || d.type == 'account';
+    }).attr("text-decoration", function(d) {
+        if ($("select#formScoringView").val() === "Recovery") {
+            if (d.recovery === 0) {
+                return "line-through";
+            }
+        }
+        return null;
+    });
 
     nodeEnter.filter(function(d) {
             return d.type == 'graph';
@@ -933,7 +942,6 @@ clickDevice = function(deviceIndex) {
         deviceDisabledList.push(deviceIndex);
     }
     update();
-    console.log("test", deviceDisabledList);
 }
 
 function generateRandomDeviceId() {
