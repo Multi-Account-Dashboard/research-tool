@@ -320,6 +320,7 @@ function updateStatisticsView() {
     $("select#formStatisticsDataList").hide();
     $("div#formStatisticsRecoveryScores").hide();
     $("div#formStatisticsSecurityScores").hide();
+    $("div#formStatisticsExpressions").hide();
     if ($("select#formStatisticsView").val() === "frequency") {
         calculateFrequencies();
         showOriginalModel();
@@ -331,12 +332,35 @@ function updateStatisticsView() {
     } else if ($("select#formStatisticsView").val() === "recovery_scores") {
         $("select#formScoringView").val("Recovery");
         updateFormRecoveryScores();
+
+        // Expressions
         $("div#formStatisticsRecoveryScores").show();
         $("select#formStatisticsDataList").show();
     } else if ($("select#formStatisticsView").val() === "graph_patterns") {
         $("select#formStatisticsPatternList").show();
         $("select#formStatisticsDataList").show();
         updateFormStatisticsGraphSelection();
+    } else if ($("select#formStatisticsView").val() === "expressions") {
+        $("select#formStatisticsDataList").show();
+        updateFormStatisticsGraphSelection();
+        let expressionTree = getExpressionTreeDevices(root);
+        let expressionTreeString = stringifyExpressionTreeHTML(expressionTree);
+
+        let expressionTreeResolved = resolveExpressionTree(expressionTree);
+        let expressionTreeResolvedString = stringifyExpressionTreeHTML(expressionTreeResolved);
+
+        let expressionTreeSimplified = simplifyExpressionTree(expressionTreeResolved);
+        let expressionTreeSimplifiedString = stringifyExpressionTreeHTML(expressionTreeSimplified);
+
+        let expressionTreeAbsorption = applyAbsorptionExpressionTree(expressionTreeSimplified);
+        let expressionTreeAbsorptionString = stringifyExpressionTreeHTML(expressionTreeAbsorption);
+
+        $("p#formStatisticsExpressionsVal").html("<b>Horn clause:</b><br/>" + expressionTreeString +
+            "<br/><br/><b>Disj. normal form:</b><br/>" + expressionTreeResolvedString +
+            "<br/><br/><b>Simplified (all possible access method combinations):</b><br/>" + expressionTreeSimplifiedString +
+            "<br/><br/><b>Absorption (least required access methods):</b><br/>" + expressionTreeAbsorptionString
+        );
+        $("div#formStatisticsExpressions").show();
     }
 }
 
@@ -411,7 +435,7 @@ function calculateSecurityScoresNode(node) {
 
 function downloadRecoveryScores() {
 
-    let csvData = "id,recovery";
+    let csvData = "id,recovery,recovery_new";
 
     let tmpRoot = root;
     let tmpDeviceData = deviceData;
@@ -430,7 +454,19 @@ function downloadRecoveryScores() {
         // Call twice to get Ids
         update(root);
 
+
         csvData += "\n" + resultData[i].id + "," + (isNaN(resultData[i].graph.recovery) ? "" : resultData[i].graph.recovery);
+
+
+        let expressionTree = getExpressionTreeDevices(root);
+        let expressionTreeResolved = resolveExpressionTree(expressionTree);
+        let expressionTreeSimplified = simplifyExpressionTree(expressionTreeResolved);
+        let expressionTreeAbsorption = applyAbsorptionExpressionTree(expressionTreeSimplified);
+        let expressionTreeAbsorptionString = stringifyExpressionTreeCSV(expressionTreeAbsorption);
+        let score = calculateAccessibilityScore(expressionTreeAbsorption);
+
+
+        csvData += ", " + (isNaN(resultData[i].graph.recovery) ? "" : score) //expressionTreeAbsorptionString;
     }
     showOriginalModel();
 
@@ -677,4 +713,24 @@ function updateFormStatisticsGraphSelection() {
 
 $("select#formStatisticsDataList").change(function() {
     updateFormStatisticsGraphSelection();
+    let expressionTree = getExpressionTreeDevices(root);
+    let expressionTreeString = stringifyExpressionTreeHTML(expressionTree);
+
+    let expressionTreeResolved = resolveExpressionTree(expressionTree);
+    let expressionTreeResolvedString = stringifyExpressionTreeHTML(expressionTreeResolved);
+
+    let expressionTreeSimplified = simplifyExpressionTree(expressionTreeResolved);
+    let expressionTreeSimplifiedString = stringifyExpressionTreeHTML(expressionTreeSimplified);
+
+    let expressionTreeAbsorption = applyAbsorptionExpressionTree(expressionTreeSimplified);
+    let expressionTreeAbsorptionString = stringifyExpressionTreeHTML(expressionTreeAbsorption);
+    let score = calculateAccessibilityScore(expressionTreeAbsorption);
+
+    let scoreTmp = calculateAccessibilityScore(expressionTreeSimplified);
+
+    $("p#formStatisticsExpressionsVal").html("<b>Horn clause:</b><br/>" + expressionTreeString +
+        "<br/><br/><b>Disj. normal form:</b><br/>" + expressionTreeResolvedString +
+        "<br/><br/><b>Simplified (all possible access method combinations):</b><br/>" + expressionTreeSimplifiedString +
+        "<br/><br/><b>Absorption (least required access methods):</b><br/>" + expressionTreeAbsorptionString + "<br/>Score: " + score + " tmp: " + scoreTmp
+    );
 });

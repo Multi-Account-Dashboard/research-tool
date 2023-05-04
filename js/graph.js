@@ -1089,7 +1089,455 @@ function downloadSVG() {
 };
 
 
+// Recovery score -> Horn clauses
 
+/*function getExpressionTree(node) {
+
+    let childrenExpression = [];
+
+    if (node.children != null && node.children != undefined && node.children.length > 0) {
+        // Node with children
+        for (var i = 0; i < node.children.length; i++) {
+            childrenExpression.push(getExpressionTree(node.children[i]));
+        }
+    } else if (node._children !== null && node._children !== undefined && node._children.length > 0) {
+        // Collapsed node
+        for (var i = 0; i < node._children.length; i++) {
+            childrenExpression.push(getExpressionTree(node._children[i]));
+        }
+    } else {
+        return node.label;
+    }
+
+    if (node.type === "operator" && childrenExpression.length > 0) {
+        let out = "";
+        out += childrenExpression[0];
+
+        for (let i = 1; i < childrenExpression.length; i++) {
+            if (node.value === "&") {
+                out += " &and; " + childrenExpression[i]
+            } else
+            if (node.value === "|") {
+                out += " &or; " + childrenExpression[i]
+            }
+        }
+        if (childrenExpression.length > 1) {
+            out = "(" + out + ")";
+        }
+        return out;
+    } else if (childrenExpression.length > 0) {
+        return childrenExpression[0];
+    }
+}*/
+
+function getExpressionTreeDevices(node) {
+
+    let childrenExpression = [];
+
+    if (node.children != null && node.children != undefined && node.children.length > 0) {
+        // Node with children
+        for (var i = 0; i < node.children.length; i++) {
+            childrenExpression.push(getExpressionTreeDevices(node.children[i]));
+        }
+    } else if (node._children !== null && node._children !== undefined && node._children.length > 0) {
+        // Collapsed node
+        for (var i = 0; i < node._children.length; i++) {
+            childrenExpression.push(getExpressionTreeDevices(node._children[i]));
+        }
+    } else {
+        if (node.devices.length > 1) {
+            let nodes = [];
+            for (let i = 0; i < node.devices.length; i++) {
+                nodes.push({ type: "value", nodes: node.devices[i], nodeType: "device" })
+            }
+            return { type: "disjunction", nodes: nodes };
+        } else if (node.devices.length == 1) {
+            return { type: "value", nodes: node.devices[0], nodeType: "device" };
+        } else {
+            return { type: "value", nodes: node.nodeId, nodeType: node.type };
+        }
+    }
+
+    if (node.type === "operator" && childrenExpression.length > 0) {
+        if (childrenExpression.length > 1) {
+            if (node.value === "&") {
+                return { type: "conjunction", nodes: childrenExpression };
+            } else if (node.value === "|") {
+                return { type: "disjunction", nodes: childrenExpression };
+            }
+        } else {
+            return childrenExpression[0];
+        }
+    } else if (childrenExpression.length > 0) {
+        return childrenExpression[0];
+    }
+}
+
+function expressionNodeIsEqual(nodeA, nodeB) {
+    if (nodeA.type !== nodeB.type) {
+        return false;
+    }
+    if (nodeA.type === "value") {
+        return nodeA.nodes === nodeB.nodes;
+    }
+    if (nodeA.type === "conjunction" || nodeA.type === "disjunction") {
+        if (nodeA.nodes.length !== nodeB.nodes.length) {
+            return false;
+        }
+        for (let i = 0; i < nodeA.nodes.length; i++) {
+            // It is assumed that subterms are sorted.
+            if (expressionNodeIsEqual(nodeA.nodes[i], nodeB.nodes[i]) === false) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function simplifyExpressionTree(treeNode) {
+    if (treeNode.type === "value") {
+        return treeNode;
+    }
+
+    if (treeNode.type === "conjunction" || treeNode.type === "disjunction") {
+        let nodes = [];
+        for (let i = 0; i < treeNode.nodes.length; i++) {
+            nodes.push(simplifyExpressionTree(treeNode.nodes[i]));
+        }
+        // Sort by length of subterm or alphabet
+        nodes.sort(function(a, b) {
+            if ((a.type === "conjunction" || a.type === "disjunction") && (b.type === "conjunction" || b.type === "disjunction")) {
+                return a.nodes.length - b.nodes.length;
+            } else if (a.type === "conjunction" || a.type === "disjunction") {
+                return a.nodes.length - 1;
+            } else if (b.type === "conjunction" || b.type === "disjunction") {
+                return 1 - b.nodes.length;
+            } else {
+                return a.nodes < b.nodes ? -1 : 1;
+            }
+        });
+
+
+        let uniqueNodes = [];
+        uniqueNodes.push(nodes[0]);
+        for (let i = 1; i < nodes.length; i++) {
+            let unique = true;
+            for (let j = 0; j < uniqueNodes.length; j++) {
+                if (expressionNodeIsEqual(nodes[i], uniqueNodes[j]) === true) {
+                    unique = false;
+                }
+            }
+            if (unique) {
+                uniqueNodes.push(nodes[i]);
+            }
+        }
+
+        if (uniqueNodes.length === 1) {
+            return uniqueNodes[0];
+        }
+
+        uniqueNodes.sort(function(a, b) {
+            if ((a.type === "conjunction" || a.type === "disjunction") && (b.type === "conjunction" || b.type === "disjunction")) {
+                return a.nodes.length - b.nodes.length;
+            } else if (a.type === "conjunction" || a.type === "disjunction") {
+                return a.nodes.length - 1;
+            } else if (b.type === "conjunction" || b.type === "disjunction") {
+                return 1 - b.nodes.length;
+            } else {
+                return a.nodes < b.nodes ? -1 : 1;
+            }
+        });
+
+
+        return { type: treeNode.type, nodes: uniqueNodes };
+    }
+
+
+}
+
+function applyAbsorptionExpressionTree(treeNode) {
+    if (treeNode.type === "value") {
+        return treeNode;
+    }
+
+    if (treeNode.type === "conjunction" || treeNode.type === "disjunction") {
+        let nodes = [];
+        for (let i = 0; i < treeNode.nodes.length; i++) {
+            nodes.push(applyAbsorptionExpressionTree(treeNode.nodes[i]));
+        }
+        // Sort by length of subterm or alphabet
+        nodes.sort(function(a, b) {
+            if ((a.type === "conjunction" || a.type === "disjunction") && (b.type === "conjunction" || b.type === "disjunction")) {
+                return a.nodes.length - b.nodes.length;
+            } else if (a.type === "conjunction" || a.type === "disjunction") {
+                return a.nodes.length - 1;
+            } else if (b.type === "conjunction" || b.type === "disjunction") {
+                return 1 - b.nodes.length;
+            } else {
+                return a.nodes < b.nodes ? -1 : 1;
+            }
+        });
+
+
+        let uniqueNodes = [];
+        uniqueNodes.push(nodes[0]);
+        for (let i = 1; i < nodes.length; i++) {
+            let unique = true;
+
+            // Is other node conjunction?
+            if (nodes[i].type === "conjunction") {
+                for (let j = 0; j < uniqueNodes.length; j++) {
+                    for (let k = 0; k < nodes[i].nodes.length; k++) {
+                        // Check if value in conjunction is already present
+                        if (expressionNodeIsEqual(nodes[i].nodes[k], uniqueNodes[j]) === true) {
+                            unique = false;
+                        }
+                    }
+                }
+            }
+
+            if (unique) {
+                uniqueNodes.push(nodes[i]);
+            }
+        }
+
+        if (uniqueNodes.length === 1) {
+            return uniqueNodes[0];
+        }
+
+        uniqueNodes.sort(function(a, b) {
+            if ((a.type === "conjunction" || a.type === "disjunction") && (b.type === "conjunction" || b.type === "disjunction")) {
+                return a.nodes.length - b.nodes.length;
+            } else if (a.type === "conjunction" || a.type === "disjunction") {
+                return a.nodes.length - 1;
+            } else if (b.type === "conjunction" || b.type === "disjunction") {
+                return 1 - b.nodes.length;
+            } else {
+                return a.nodes < b.nodes ? -1 : 1;
+            }
+        });
+
+
+        return { type: treeNode.type, nodes: uniqueNodes };
+    }
+
+
+}
+
+// Bring horn clause to disj. normal form
+function resolveExpressionTree(treeNode) {
+    let outNode;
+    if (treeNode.type === "conjunction") {
+        let nodesA = [];
+        for (let i = 0; i < treeNode.nodes.length; i++) {
+            let n = resolveExpressionTree(treeNode.nodes[i]);
+            if (n.type === "conjunction") {
+                for (let j = 0; j < n.nodes.length; j++) {
+                    nodesA.push(n.nodes[j]);
+                }
+            } else {
+                nodesA.push(n);
+            }
+        }
+
+        // Apply distributive law
+        let nodesB = [];
+        let nodesNotProcessed = [];
+        for (let i = 0; i < nodesA.length; i++) {
+            // is left term only a value or a subterm?
+            if (nodesA[i].type === "conjunction" || nodesA[i].type === "disjunction") {
+                for (let j = 0; j < nodesA[i].nodes.length; j++) {
+                    // is right term only a value or a subterm?
+                    if (nodesA[i + 1].type === "conjunction" || nodesA[i + 1].type === "disjunction") {
+                        for (let k = 0; k < nodesA[i + 1].nodes.length; k++) {
+                            nodesB.push({ type: "conjunction", nodes: [nodesA[i].nodes[j], nodesA[i + 1].nodes[k]] })
+                        }
+                    } else {
+                        let tmpNodes = [];
+                        tmpNodes.push(nodesA[i].nodes[j], nodesA[i + 1]);
+                        let obj = { type: "conjunction", nodes: tmpNodes };
+                        nodesB.push(obj)
+                    }
+                }
+                i++; // Jump over second term
+                // is right term only a value or a subterm?
+            } else if (i + 1 < nodesA.length && (nodesA[i + 1].type === "conjunction" || nodesA[i + 1].type === "disjunction")) {
+                for (let j = 0; j < nodesA[i + 1].nodes.length; j++) {
+                    nodesB.push({ type: "conjunction", nodes: [nodesA[i], nodesA[i + 1].nodes[j]] })
+                }
+                i++;
+            } else {
+                nodesNotProcessed.push(nodesA[i]);
+            }
+        }
+
+        if (nodesB.length === 0) {
+            // Distributive law does not apply
+            outNode = { type: "conjunction", nodes: nodesNotProcessed };
+
+        } else {
+            if (nodesNotProcessed.length > 0) {
+                outNode = { type: "conjunction", nodes: nodesNotProcessed };
+                outNode.nodes.push(nodesB);
+            } else {
+                outNode = { type: "disjunction", nodes: nodesB };
+            }
+        }
+
+
+    } else if (treeNode.type === "disjunction") {
+        let nodes = [];
+        for (let i = 0; i < treeNode.nodes.length; i++) {
+            let n = resolveExpressionTree(treeNode.nodes[i]);
+            if (n.type === "disjunction") {
+                for (let j = 0; j < n.nodes.length; j++) {
+                    nodes.push(n.nodes[j]);
+                }
+            } else {
+                nodes.push(n);
+            }
+        }
+        outNode = { type: "disjunction", nodes: nodes };
+    } else if (treeNode.type === "value") {
+        return treeNode;
+    } else {
+        return null;
+    }
+    return outNode;
+}
+
+function stringifyExpressionTreeHTML(treeNode, parentType = '') {
+    let out = "";
+    if (treeNode.type === "conjunction") {
+        out += stringifyExpressionTreeHTML(treeNode.nodes[0], treeNode.type);
+        for (let i = 1; i < treeNode.nodes.length; i++) {
+            out += " &and; " + stringifyExpressionTreeHTML(treeNode.nodes[i], treeNode.type);
+
+            // apply distributive law
+
+
+        }
+    } else if (treeNode.type === "disjunction") {
+        out += stringifyExpressionTreeHTML(treeNode.nodes[0], treeNode.type);
+        for (let i = 1; i < treeNode.nodes.length; i++) {
+            out += " &or; " + stringifyExpressionTreeHTML(treeNode.nodes[i], treeNode.type);
+        }
+    } else if (treeNode.type === "value") {
+        return treeNode.nodes;
+    } else {
+        return "undefined";
+    }
+
+    // Set brackets only where necessary
+    if (parentType !== "" && parentType !== treeNode.type) {
+        out = "(" + out + ")";
+    }
+
+    return out;
+}
+
+function stringifyExpressionTreeCSV(treeNode, parentType = '') {
+    let out = "";
+    if (treeNode.type === "conjunction") {
+        out += stringifyExpressionTreeCSV(treeNode.nodes[0], treeNode.type);
+        for (let i = 1; i < treeNode.nodes.length; i++) {
+            out += " ∧ " + stringifyExpressionTreeCSV(treeNode.nodes[i], treeNode.type);
+
+            // apply distributive law
+
+
+        }
+    } else if (treeNode.type === "disjunction") {
+        out += stringifyExpressionTreeCSV(treeNode.nodes[0], treeNode.type);
+        for (let i = 1; i < treeNode.nodes.length; i++) {
+            out += " ∨ " + stringifyExpressionTreeCSV(treeNode.nodes[i], treeNode.type);
+        }
+    } else if (treeNode.type === "value") {
+        return treeNode.nodes;
+    } else {
+        return "undefined";
+    }
+
+    // Set brackets only where necessary
+    if (parentType !== "" && parentType !== treeNode.type) {
+        out = "(" + out + ")";
+    }
+
+    return out;
+}
+
+// Return list of values from expression tree including duplicates
+function getExpressionTreeElements(treeNode) {
+    let arr = [];
+    if (treeNode.type === "value") {
+        arr.push(treeNode)
+    } else if (treeNode.type === "conjunction" || treeNode.type === "disjunction") {
+        for (let i = 0; i < treeNode.nodes.length; i++) {
+            let children = getExpressionTreeElements(treeNode.nodes[i]);
+            for (let j = 0; j < children.length; j++) {
+                arr.push(children[j]);
+            }
+        }
+    }
+    return arr;
+}
+
+
+
+function calculateAccessibilityScore(treeNode) {
+    // Get elements from tree
+    let elements = getExpressionTreeElements(treeNode);
+    // Count occurrence and eliminate duplicates
+    for (let i = 0; i < elements.length; i++) {
+        elements[i].count = 1;
+        for (let j = i + 1; j < elements.length; j++) {
+            if (expressionNodeIsEqual(elements[i], elements[j])) {
+                elements[i].count++;
+                elements.splice(j, 1);
+                j--;
+            }
+        }
+    }
+
+    return calculateAccessibilityScoreNode(treeNode, elements).toFixed(2);
+
+}
+
+function calculateAccessibilityScoreNode(treeNode, elements) {
+    if (treeNode.type === "value") {
+        return getAccessibilityValueByElement(treeNode, elements);
+    } else if (treeNode.type === "conjunction") {
+        // Calculate min
+        let value = Number.MAX_SAFE_INTEGER;
+        let tmpVal = Number.MAX_SAFE_INTEGER;
+        for (let i = 0; i < treeNode.nodes.length; i++) {
+
+            tmpVal = calculateAccessibilityScoreNode(treeNode.nodes[i], elements);
+            if (tmpVal < value) {
+                value = tmpVal
+            };
+        }
+
+        return value;
+    } else if (treeNode.type === "disjunction") {
+        // Calculate SUM
+        let value = 0;
+        for (let i = 0; i < treeNode.nodes.length; i++) {
+            value += calculateAccessibilityScoreNode(treeNode.nodes[i], elements);
+        }
+        return value;
+    } else {
+        return 0;
+    }
+}
+
+function getAccessibilityValueByElement(treeNode, elements) {
+    for (let i = 0; i < elements.length; i++) {
+        if (expressionNodeIsEqual(treeNode, elements[i])) {
+            return 1.0 / elements[i].count;
+        }
+    }
+}
 
 // Analysis
 
@@ -1165,7 +1613,6 @@ $("input#formAnalysisDataFileInput").change(function(event) {
                 // Remove clickable list of account graphs
             }
         });
-
         reader.readAsText(file)
     }
 });
