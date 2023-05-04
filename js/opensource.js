@@ -34,6 +34,8 @@ $("input#formSearchURL").change(function() {
         search_results = data_2fa_directory.filter(function(val) {
             return val[1] && val[1].domain.toLowerCase().includes(query.toLowerCase());
         });
+    } else {
+        $("pre#formSearchRawData").html("");
     }
     let resultsHTML = "";
     for (let i = 0; i < search_results.length; i++) {
@@ -62,6 +64,9 @@ function showGraph(index) {
     $("div#graphLabel").html("Graph: " + selection[0]);
     root = g;
     refreshGraph();
+
+    // Print raw data
+    $("pre#formSearchRawData").html(JSON.stringify(selection, null, 2));
 
 }
 
@@ -162,7 +167,7 @@ function setGraph_2fa_factory(obj) {
             ]
         }];
     } else if (hasPW) {
-        children = { "type": "authentication", "value": "password", "label": "Password", "score": 1 };
+        children = [{ "type": "authentication", "value": "password", "label": "Password", "score": 1 }];
     } else if (hasMFA) {
         if (mfaGraphNodes.length > 1) {
             children = [{
