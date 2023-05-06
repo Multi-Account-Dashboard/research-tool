@@ -157,14 +157,26 @@ function nodeDeviceListChange(el, id) {
 $("select#formNodeValue").change(function() {
     selectedNode.value = $("select#formNodeValue").val();
     switch (selectedNode.value) {
-        case "knowledge":
+        case "a1-pw":
+        case "f1-question":
             selectedNode.score = 1;
             break;
-        case "software":
+        case "a2-sms":
+        case "f2-sms":
+        case "f2-email":
             selectedNode.score = 2;
             break;
-        case "hardware":
+        case "a3-app":
+        case "f3-trustee":
             selectedNode.score = 3;
+            break;
+        case "a4-token":
+        case "f4-recovery":
+            selectedNode.score = 4;
+            break;
+        case "a5-passwordless":
+        case "f5-token":
+            selectedNode.score = 5;
             break;
     }
     $("input#formNodeScore").val(selectedNode.score);

@@ -72,11 +72,20 @@
                                 <div id="formNode" style="display: none;">
                                     <h3>Authentication</h3>
                                     <div class="mb-3">
-                                        <label for="formNodeValue" class="form-label">Category:</label>
-                                        <select id="formNodeValue" class="form-select">
-                                        <option value="knowledge">Knowledge-based</option>
-                                        <option value="software">Software-based</option>
-                                        <option value="hardware">Hardware-based</option>
+                                        <label for="formNodeValue" class="form-label">Maturity level:</label>
+                                        <select id="formNodeValue" class="form-select">                                        
+                                        <option value="a1-pw">A1 - Password</option>
+                                        <option value="a2-sms">A2 - SMS-based</option>
+                                        <option value="a3-app">A3 - App-based</option>
+                                        <option value="a4-token">A4 - Token-based</option>
+                                        <option value="a5-passwordless">A5 - Passwordless</option>
+                                        <option disabled="disabled">---</option>
+                                        <option value="f1-question">F1 - Question-based</option>
+                                        <option value="f2-email">F2 - Email-based</option>
+                                        <option value="f2-sms">F2 - SMS-based</option>
+                                        <option value="f3-trusteee">F3 - Trustee-based</option>
+                                        <option value="f4-recovery">F4 - Recovery code-based</option>
+                                        <option value="f5-token">F5 - Token-based</option>
                                       </select>
 
                                     </div>
@@ -89,7 +98,7 @@
                                         <input type="text" id="formNodeId" class="form-control" />
                                     </div>
                                     <div class="mb-3">
-                                        <label for="formNodeScore" class="form-label">Score:</label>
+                                        <label for="formNodeScore" class="form-label">Security:</label>
                                         <input type="number" id="formNodeScore" class="form-control" />
                                     </div>
 
@@ -138,9 +147,6 @@
                                 </div>
 
                                 <div class="mb-3" id="formAddChild">
-                                    <br/>
-                                    <hr/>
-                                    <br/>
                                     <label for="selectAddChild" class="form-label"><b>Add child</b></label>
                                     <div class="input-group mb-3">
                                         <select id="selectAddChild" class="form-select">
