@@ -54,11 +54,15 @@
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="tab" href="#scoring">Scoring</a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" id="tab_view" data-bs-toggle="tab" href="#view">View</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" id="tab_import" data-bs-toggle="tab" href="#import">Import</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="tab_view" data-bs-toggle="tab" href="#view">View</a>
+                            <a class="nav-link" id="tab_import" data-bs-toggle="tab" href="#export">Export</a>
                         </li>
                     </ul>
 
@@ -193,29 +197,6 @@
                             <ul class="list-group" id="formDeviceList"></ul>
                         </div>
 
-                        <div class="tab-pane" id="import" role="tabpanel">
-                            <br/>
-                            <input type="file" class="form-control" id="formImportFileInput" accept=".json" />
-                            <br/>
-                            <textarea class="form-control" id="importData" rows="10"></textarea>
-                            <div style="margin-top: 50px; float:right;">
-                                <button type="button" id="btnImport" class="btn btn-light">Import</button>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane" id="analysis" role="tabpanel">
-                            <br/>
-                            <label for="formAnalysisOriginalModelFileInput" class="form-label">Original Model</label>
-                            <input type="file" class="form-control" id="formAnalysisOriginalModelFileInput" accept=".json" />
-                            <br/>
-                            <button id="btnFormAnalysisShowOriginalModel" class="btn btn-light" style="display:none;">Show</button>
-                            <br/>
-                            <br/>
-                            <label for="formAnalysisDataFileInput" class="form-label">Graph Data</label>
-                            <input type="file" class="form-control" id="formAnalysisDataFileInput" accept=".json" />
-
-                        </div>
-
                         <div class="tab-pane" id="view" role="tabpanel">
                             <br/>
                             <h3>Layout</h3><br/>
@@ -258,6 +239,69 @@
                                     <option value="none">Show none</option>
                                 </select>
                             </div>
+                        </div>
+                        <div class="tab-pane" id="import" role="tabpanel">
+                            <br/>
+                            <input type="file" class="form-control" id="formImportFileInput" accept=".json" />
+                            <br/>
+                            <textarea class="form-control" id="importData" rows="10"></textarea>
+                            <div style="margin-top: 50px; float:right;">
+                                <button type="button" id="btnImport" class="btn btn-light">Import</button>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="export" role="tabpanel">
+                            <div class="mb-3">
+                                <label for="formExportType" class="form-label">Export type:</label>
+                                <select id="formExportType" class="form-select">
+                                    <option selected value="graph">Graph</option>
+                                    <option value="sdl">Standardized Description Language</option>
+                                </select> <br/>
+                            </div>
+
+                            <div class="mb-3" id="formExportGraph">
+                                <button id="btnExportGraph" class="btn btn-light" type="button" onclick="downloadJSON()">Download JSON</button>
+                                <button id="btnExportGraph" class="btn btn-light" type="button" onclick="downloadSVG()">Download SVG</button>
+                            </div>
+
+                            <div class="mb-3" id="formExportSDL" style="display:none;">
+
+                                <h3>Standardized Description Language</h3> <br/>
+                                <div class="mb-3">
+                                    <label for="formExportSDLName" class="form-label">Name:</label>
+                                    <input type="text" id="formExportSDLName" class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="formExportSDLURL" class="form-label">URL:</label>
+                                    <input type="text" id="formExportSDLURL" class="form-control" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="formExportSDLAccountType" class="form-label">Account type:</label>
+                                    <select id="formExportSDLAccountType" class="form-select" value="1">
+                                    <option selected value="1">Throw-away account</option>
+                                    <option  value="2">Routine account</option>
+                                    <option  value="3">Spokesperson account</option>
+                                    <option  value="4">Sensitive account</option>
+                                    <option  value="5">High-value transaction account</option>
+                                    <option  value="6">Identity provider account</option>
+                                    </select>
+                                </div>
+                                <br/>
+                                <div class="mb-3">
+                                    <h4>SSO</h4>
+                                    <input class="form-check-input" type="checkbox" value="" id="formExportSDLIsIdentityProvider">
+                                    <label class="form-check-label" for="formExportSDLIsIdentityProvider">
+                                        Is identity provider?
+                                    </label>
+
+                                </div>
+
+                                <div class="mb-3">
+                                    <button id="btnExportGraph" class="btn btn-light" type="button" onclick="downloadSDL()">Download JSON</button>
+                                </div>
+                            </div>
+
+
                         </div>
 
                     </div>

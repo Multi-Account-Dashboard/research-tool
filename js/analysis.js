@@ -444,11 +444,15 @@ function downloadRecoveryScores() {
 }
 
 function downloadSecurityScores() {
+    if (resultData.length === 0) {
+        return;
+    }
+    let nodeId = selectedNode === null ? resultData[0].graph.nodeId : selectedNode.nodeId;
 
-    let csvData = "id,security_" + selectedNode.nodeId;
+    let csvData = "id,security_" + nodeId;
 
     for (let i = 0; i < resultData.length; i++) {
-        let node = getNodebyNodeId(resultData[i].graph, selectedNode.nodeId);
+        let node = getNodebyNodeId(resultData[i].graph, nodeId);
         if (node !== null) {
             calculateScore(node);
 

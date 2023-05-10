@@ -55,7 +55,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" id="tab_statistics" data-bs-toggle="tab" href="#statistics">Statistics</a>
+                            <a class="nav-link" id="tab_statistics" data-bs-toggle="tab" href="#statistics">Analysis</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="tab_view" data-bs-toggle="tab" href="#view">View</a>
@@ -75,7 +75,7 @@
                         <div class="tab-pane" id="data" role="tabpanel">
                             <br/>
                             <input type="file" class="form-control" id="formImportDataFileInput" accept=".json" />
-                            <div style="margin-top: 25px;">
+                            <div style="margin-top: 25px; float: right;">
                                 <button type="button" id="btnImportData" class="btn btn-light">Import</button>
                             </div>
                             <select class="form-select" id="formDataList" style="margin-top: 25px; display: none;"></select>
@@ -110,9 +110,9 @@
                             <div class="mb-3">
                                 <select id="formStatisticsView" class="form-select">
                                 <option selected value="frequency">Frequency of methods</option>
-                                <option value="security_scores">Security Scores</option>
+                                <option value="security_scores">Security scores</option>
                                 <option value="recovery_scores">Recovery scores</option>
-                                <option value="graph_patterns">Graph patterns</option>
+                                <option value="graph_patterns">Authentication patterns</option>
                                 </select>
                             </div>
 

@@ -453,4 +453,128 @@ function downloadJSON() {
 };
 
 
+$("select#formExportType").change(function() {
+
+    $("div#formExportGraph").hide();
+    $("div#formExportSDL").hide();
+
+    let exportType = $("select#formExportType").val();
+    if (exportType === "graph") {
+        $("div#formExportGraph").show();
+    } else if (exportType === "sdl") {
+        $("div#formExportSDL").show();
+    }
+});
+
+/*
+{
+        "name": "$name",
+        "url": "$url",
+        "accountType": "$accounttype",
+        "primaryAuthentication":
+        {
+            "types_possible": [$methods],
+            "required": [$logicalmethods]
+        },
+        "fallbackAuthentication":
+        {
+            "types_possible": [$methods],
+            "required": [$logicalmethods],
+        },
+        "sso":
+        {
+            "identity provider": boolean,
+            "providers":[$providers],
+            "data":[$data]
+        }
+        "pii":
+        {
+            "required": [$requireddata],
+            "optional": [$optionaldata]
+        }
+    }
+}
+
+
+{
+        "name": "overleaf.com",
+        "url": "https://www.overleaf.com",
+        "accountType": "sensitive account",
+        "primaryAuthentication":
+        {
+            "types_possible": ["password","sso"],
+            "required":
+            ["OR",
+                {"password":""},
+                {"sso": ""}
+            ]
+        },
+        "fallbackAuthentication":
+        {
+            "types_possible": ["email"],
+            "required": {"email":"multiple"},
+        },
+        "sso":
+        {
+            "identity provider": false,
+            "providers":["google.com", "orcid.org", "twitter.com", "ieee.org", "institutional"],
+            "data":["identifier"]
+        }
+    }
+}
+
+
+*/
+
+function graphToSDLMainAuthentication(node) {
+    // ...
+}
+
+function graphToSDLFallbackAuthentication(node) {
+    // ...
+}
+
+function downloadSDL() {
+    let name = $("input#formExportSDLName").val();
+    let url = $("input#formExportSDLURL").val();
+
+    let accountType = "";
+    switch ($("select#formExportSDLAccountType").val()) {
+        case "1":
+            accountType = "Throw-away account";
+            break;
+        case "2":
+            accountType = "Routine account";
+            break;
+        case "3":
+            accountType = "Spokesperson account";
+            break;
+        case "4":
+            accountType = "Sensitive account";
+            break;
+        case "5":
+            accountType = "High-value transaction account";
+            break;
+        case "6":
+            accountType = "Identity provider account";
+            break;
+        default:
+            break;
+    }
+
+    let sdlObject = new Object();
+    sdlObject.name = name;
+    sdlObject.url = url;
+    sdlObject.accountType = accountType;
+
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sdlObject));
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", root.label + "_sdl.json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+
 update(root);
