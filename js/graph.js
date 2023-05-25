@@ -1145,13 +1145,14 @@ function getExpressionTreeDevices(node) {
             childrenExpression.push(getExpressionTreeDevices(node._children[i]));
         }
     } else {
-        if (node.devices.length > 1) {
+        console.log(node);
+        if (node.devices && node.devices.length > 1) {
             let nodes = [];
             for (let i = 0; i < node.devices.length; i++) {
                 nodes.push({ type: "value", nodes: node.devices[i], nodeType: "device" })
             }
             return { type: "disjunction", nodes: nodes };
-        } else if (node.devices.length == 1) {
+        } else if (node.devices && node.devices.length == 1) {
             return { type: "value", nodes: node.devices[0], nodeType: "device" };
         } else {
             return { type: "value", nodes: node.nodeId, nodeType: node.type };
